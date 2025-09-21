@@ -28,6 +28,10 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PostStatus status;
+
     @ManyToMany
     @JoinTable(
             name = "post_tags",
