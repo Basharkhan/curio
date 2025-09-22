@@ -13,8 +13,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findByAuthorId(Long authorId, Pageable pageable);
     Page<Post> findByCategoryId(Long categoryId, Pageable pageable);
     Page<Post> findByTags_Id(Long tagId, Pageable pageable);
-//    Page<Post> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(String query, Pageable pageable);
-//    List<Post> findByFeaturedTrue();
-//    List<Post> findByCategoryIdAndIdNot(Long categoryId, Long postId, Pageable pageable);
-//    List<Post> findByTags_IdInAndIdNot(List<Long> tagIds, Long postId, Pageable pageable);
+    Page<Post> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(String titleQuery, String contentQuery, Pageable pageable);
+    List<Post> findByFeaturedTrue();
+    List<Post> findByCategoryIdAndIdNot(Long categoryId, Long postId, Pageable pageable);
+    List<Post> findByTags_IdInAndIdNot(List<Long> tagIds, Long postId, Pageable pageable);
 }

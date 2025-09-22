@@ -148,15 +148,18 @@ public class PostService {
         return posts.map(this::mapToDto);
     }
 
-/*
     @Transactional(readOnly = true)
     public Page<PostDto> searchPosts(String query, Pageable pageable) {
-        Page<Post> posts = postRepository.findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(query, pageable);
+        Page<Post> posts;
+
+        if (query == null || query.isBlank()) {
+            posts = Page.empty(pageable);
+        } else {
+            posts = postRepository.findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(query, query, pageable);
+        }
         return posts.map(this::mapToDto);
     }
-*/
 
-/*
     @Transactional
     public PostDto getPostAndIncrementViews(Long postId) {
         Post post = postRepository.findById(postId)
@@ -167,26 +170,28 @@ public class PostService {
 
         return mapToDto(updatedPost);
     }
-*/
 
-/*
+    @Transactional
+    public PostDto toggleFeatured(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + id));
+        post.setFeatured(!post.isFeatured());
+        return mapToDto(postRepository.save(post));
+    }
+
     @Transactional(readOnly = true)
     public List<PostDto> getFeaturedPosts() {
         List<Post> posts = postRepository.findByFeaturedTrue();
         return posts.stream().map(this::mapToDto).toList();
     }
-*/
 
-/*
     @Transactional(readOnly = true)
     public List<PostDto> getRecentPosts(int limit) {
         Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Post> posts = postRepository.findAll(pageable);
         return posts.stream().map(this::mapToDto).toList();
     }
-*/
 
-/*
     @Transactional(readOnly = true)
     public List<PostDto> getRelatedPosts(Long postId, int limit) {
         Post post = postRepository.findById(postId)
@@ -194,7 +199,10 @@ public class PostService {
 
         // Find related posts by category first
         Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
-        List<Post> related = postRepository.findByCategoryIdAndIdNot(post.getCategory().getId(), post.getId(), pageable);
+        List<Post> related = new ArrayList<>();
+        if (post.getCategory() != null) {
+            related = postRepository.findByCategoryIdAndIdNot(post.getCategory().getId(), post.getId(), pageable);
+        }
 
         // If not enough, fetch by tags
         if (related.size() < limit && post.getTags() != null && !post.getTags().isEmpty()) {
@@ -205,7 +213,6 @@ public class PostService {
 
         return related.stream().map(this::mapToDto).distinct().limit(limit).toList();
     }
-*/
 
     private PostDto mapToDto(Post post) {
         return PostDto.builder()
@@ -217,6 +224,7 @@ public class PostService {
                 .tags(post.getTags() != null ? post.getTags().stream().map(Tag::getName).toList() : List.of())
                 .status(post.getStatus())
                 .views(post.getViews())
+                .featured(post.isFeatured())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .build();

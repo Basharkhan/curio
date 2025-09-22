@@ -50,6 +50,6 @@ public class Post extends BaseEntity {
     // Optional fields to support “recent” and “related” posts
     @Builder.Default
     private int views = 0;
-    private boolean featured;
+    private boolean featured = false;
 }
 

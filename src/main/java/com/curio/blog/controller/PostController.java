@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -99,6 +100,96 @@ public class PostController {
                 HttpStatus.OK.value(),
                 "Post status updated successfully",
                 post,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<Page<PostDto>>> searchPosts(@RequestParam(defaultValue = "") String query,
+                                                                  @PageableDefault(size = 10, page = 0) Pageable pageable) {
+        Page<PostDto> posts = postService.searchPosts(query, pageable);
+
+        ApiResponse<Page<PostDto>> response = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "Post with search query retrieved successfully",
+                posts,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/featured")
+    public ResponseEntity<ApiResponse<List<PostDto>>> getFeaturedPosts() {
+        List<PostDto> posts = postService.getFeaturedPosts();
+
+        ApiResponse<List<PostDto>> response = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "Featured posts retrieved successfully",
+                posts,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}/toggle-featured")
+    public ResponseEntity<ApiResponse<PostDto>> toggleFeatured(@PathVariable Long id) {
+        PostDto post = postService.toggleFeatured(id);
+        String message = post.isFeatured() ? "Post marked as featured" : "Post unmarked as featured";
+
+        ApiResponse<PostDto> response = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                message,
+                post,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}/post-views")
+    public ResponseEntity<ApiResponse<PostDto>> getPostAndIncrementViews(@PathVariable Long id) {
+        PostDto post = postService.getPostAndIncrementViews(id);
+        String message = "Post views incremented";
+
+        ApiResponse<PostDto> response = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                message,
+                post,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/recent")
+    public ResponseEntity<ApiResponse<List<PostDto>>> getRecentPosts(@RequestParam(defaultValue = "5") int limit) {
+        List<PostDto> posts = postService.getRecentPosts(limit);
+        String message = "Recent post retrieved successfully";
+
+        ApiResponse<List<PostDto>> response = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                message,
+                posts,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}/related")
+    public ResponseEntity<ApiResponse<List<PostDto>>> getRelatedPosts(@PathVariable Long id,
+                                                                      @RequestParam(defaultValue = "10") int limit) {
+        List<PostDto> posts = postService.getRelatedPosts(id, limit);
+        String message = "Related post retrieved successfully";
+
+        ApiResponse<List<PostDto>> response = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                message,
+                posts,
                 LocalDateTime.now()
         );
 

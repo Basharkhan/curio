@@ -18,6 +18,7 @@ public class PostDto {
     private List<String> tags;
     private PostStatus status;
     private int views;
+    private boolean featured;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
