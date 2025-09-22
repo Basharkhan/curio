@@ -1,9 +1,14 @@
 package com.curio.blog.controller;
 
 import com.curio.blog.dto.*;
+import com.curio.blog.model.Post;
 import com.curio.blog.service.CategoryService;
+import com.curio.blog.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CategoryController {
     private final CategoryService categoryService;
+    private final PostService postService;
 
     @PostMapping
     public ResponseEntity<ApiResponse<CategoryDto>> createCategory(@Valid @RequestBody CategoryRequest request) {
@@ -82,6 +88,21 @@ public class CategoryController {
                 HttpStatus.OK.value(),
                 "Category deleted successfully",
                 null,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}/posts")
+    public ResponseEntity<ApiResponse<Page<PostDto>>> getPostsByCategory(@PathVariable Long id,
+                                                                       @PageableDefault(size = 10, page = 0) Pageable pageable) {
+        Page<PostDto> posts = postService.getPostsByCategory(id, pageable);
+
+        ApiResponse<Page<PostDto>> response = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "Post by category retrieved successfully",
+                posts,
                 LocalDateTime.now()
         );
 

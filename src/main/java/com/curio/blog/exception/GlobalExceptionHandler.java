@@ -46,7 +46,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpServletRequest request) {
-        return buildResponse(new RuntimeException("Request body is missing or malformed"), HttpStatus.BAD_REQUEST, request);
+        String errorMessage = "Request body is missing or malformed";
+
+        // Simple check for PostStatus enum errors
+        if (ex.getMessage() != null && ex.getMessage().contains("PostStatus")) {
+            errorMessage = "Invalid status value";
+        }
+
+        return buildResponse(new RuntimeException(errorMessage), HttpStatus.BAD_REQUEST, request);
     }
 
     @ExceptionHandler(AccessDeniedException.class)

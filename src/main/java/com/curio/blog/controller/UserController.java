@@ -1,9 +1,7 @@
 package com.curio.blog.controller;
 
-import com.curio.blog.dto.ApiResponse;
-import com.curio.blog.dto.UserDto;
-import com.curio.blog.dto.UserRegisterRequest;
-import com.curio.blog.dto.UserUpdateRequest;
+import com.curio.blog.dto.*;
+import com.curio.blog.service.PostService;
 import com.curio.blog.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +19,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final PostService postService;
 
     @PostMapping
     public ResponseEntity<ApiResponse<UserDto>> registerUser(@Valid @RequestBody UserRegisterRequest request) {
@@ -73,6 +72,21 @@ public class UserController {
                 HttpStatus.OK.value(),
                 "User retrieved successfully",
                 user,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}/posts")
+    public ResponseEntity<ApiResponse<Page<PostDto>>> getPostsByAuthor(@PathVariable Long id,
+                                                                       @PageableDefault(size = 10, page = 0) Pageable pageable) {
+        Page<PostDto> posts = postService.getPostsByAuthor(id, pageable);
+
+        ApiResponse<Page<PostDto>> response = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "Posts retrieved successfully",
+                posts,
                 LocalDateTime.now()
         );
 

@@ -89,4 +89,19 @@ public class PostController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<ApiResponse<PostDto>> updatePostStatus(@PathVariable Long id,
+                                                                 @Valid @RequestBody UpdateStatusRequest request) {
+        PostDto post = postService.updatePostStatus(id, request);
+
+        ApiResponse<PostDto> response = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "Post status updated successfully",
+                post,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.ok(response);
+    }
 }
