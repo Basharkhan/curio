@@ -24,6 +24,57 @@ public class CategoryController {
     private final CategoryService categoryService;
     private final PostService postService;
 
+    // ============================
+    // public endpoints
+    // ============================
+    @GetMapping()
+    public ResponseEntity<ApiResponse<List<CategoryDto>>> getAllCategories() {
+        List<CategoryDto> categories = categoryService.getAllCategories();
+
+        ApiResponse<List<CategoryDto>> response = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "Categories updated successfully",
+                categories,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('AUTHOR')")
+    public ResponseEntity<ApiResponse<CategoryDto>> getCategoryById(@PathVariable Long id) {
+        CategoryDto categories = categoryService.getCategoryById(id);
+
+        ApiResponse<CategoryDto> response = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "Categories retrieved successfully",
+                categories,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}/posts")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('AUTHOR')")
+    public ResponseEntity<ApiResponse<Page<PostDto>>> getPostsByCategory(@PathVariable Long id,
+                                                                         @PageableDefault(size = 10, page = 0) Pageable pageable) {
+        Page<PostDto> posts = postService.getPostsByCategory(id, pageable);
+
+        ApiResponse<Page<PostDto>> response = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "Post by category retrieved successfully",
+                posts,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    // ===========================
+    // protected endpoints
+    // ===========================
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<CategoryDto>> createCategory(@Valid @RequestBody CategoryRequest request) {
@@ -55,36 +106,6 @@ public class CategoryController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping()
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<List<CategoryDto>>> getAllCategories() {
-        List<CategoryDto> categories = categoryService.getAllCategories();
-
-        ApiResponse<List<CategoryDto>> response = new ApiResponse<>(
-                HttpStatus.OK.value(),
-                "Categories updated successfully",
-                categories,
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('AUTHOR')")
-    public ResponseEntity<ApiResponse<CategoryDto>> getCategoryById(@PathVariable Long id) {
-        CategoryDto categories = categoryService.getCategoryById(id);
-
-        ApiResponse<CategoryDto> response = new ApiResponse<>(
-                HttpStatus.OK.value(),
-                "Categories retrieved successfully",
-                categories,
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<CategoryDto>> deleteCategoryById(@PathVariable Long id) {
@@ -94,22 +115,6 @@ public class CategoryController {
                 HttpStatus.OK.value(),
                 "Category deleted successfully",
                 null,
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/{id}/posts")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('AUTHOR') or hasRole('READER')")
-    public ResponseEntity<ApiResponse<Page<PostDto>>> getPostsByCategory(@PathVariable Long id,
-                                                                       @PageableDefault(size = 10, page = 0) Pageable pageable) {
-        Page<PostDto> posts = postService.getPostsByCategory(id, pageable);
-
-        ApiResponse<Page<PostDto>> response = new ApiResponse<>(
-                HttpStatus.OK.value(),
-                "Post by category retrieved successfully",
-                posts,
                 LocalDateTime.now()
         );
 
