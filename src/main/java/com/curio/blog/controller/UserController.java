@@ -21,20 +21,6 @@ public class UserController {
     private final UserService userService;
     private final PostService postService;
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<UserDto>> registerUser(@Valid @RequestBody UserRegisterRequest request) {
-        UserDto user = userService.registerUser(request);
-
-        ApiResponse<UserDto> response = new ApiResponse<>(
-                HttpStatus.OK.value(),
-                "User created successfully",
-                user,
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<UserDto>> updateUser(@PathVariable Long id,
                                                            @Valid @RequestBody UserUpdateRequest request) {

@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -23,6 +24,7 @@ public class TagController {
     private final PostService postService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<TagDto>> createTag(@Valid @RequestBody TagRequest request) {
         TagDto user = tagService.createTag(request);
 
@@ -37,6 +39,7 @@ public class TagController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<TagDto>> updateTag(@PathVariable Long id,
                                                          @Valid @RequestBody TagRequest request) {
         TagDto user = tagService.updateTag(id, request);
@@ -52,6 +55,7 @@ public class TagController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<List<TagDto>>> getAllTags() {
         List<TagDto> tags = tagService.getAllTags();
 
@@ -66,6 +70,7 @@ public class TagController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('AUTHOR')")
     public ResponseEntity<ApiResponse<TagDto>> getTagById(@PathVariable Long id) {
         TagDto tag = tagService.getTagById(id);
 
@@ -80,6 +85,7 @@ public class TagController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteTagById(@PathVariable Long id) {
         tagService.deleteTagById(id);
 
@@ -94,6 +100,7 @@ public class TagController {
     }
 
     @GetMapping("/{id}/posts")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('AUTHOR') or hasRole('READER')")
     public ResponseEntity<ApiResponse<Page<PostDto>>> getPostsByTag(@PathVariable Long id,
                                                            @PageableDefault(size = 10, page = 0) Pageable pageable) {
         Page<PostDto> posts = postService.getPostsByTag(id, pageable);

@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -21,7 +22,8 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<PostDto>> registerUser(@Valid @RequestBody PostCreateRequest request) {
+    @PreAuthorize("hasRole('ADMIN') or hasRole('AUTHOR')")
+    public ResponseEntity<ApiResponse<PostDto>> createPost(@Valid @RequestBody PostCreateRequest request) {
         PostDto post = postService.createPost(request);
 
         ApiResponse<PostDto> response = new ApiResponse<>(
@@ -35,6 +37,7 @@ public class PostController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('AUTHOR')")
     public ResponseEntity<ApiResponse<PostDto>> updatePost(@PathVariable Long id,
                                                            @Valid @RequestBody PostUpdateRequest request) {
         PostDto post = postService.updatePost(id, request);
@@ -50,6 +53,7 @@ public class PostController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('AUTHOR') or hasRole('USER')")
     public ResponseEntity<ApiResponse<PostDto>> getPostById(@PathVariable Long id) {
         PostDto post = postService.getPostById(id);
 
@@ -64,6 +68,7 @@ public class PostController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('AUTHOR') ")
     public ResponseEntity<ApiResponse<Page<PostDto>>> getAllPosts(@PageableDefault(size = 10, page = 0) Pageable pageable) {
         Page<PostDto> posts = postService.getAllPosts(pageable);
 

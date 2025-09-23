@@ -18,23 +18,6 @@ import org.springframework.stereotype.Service;
 public class UserService {
     private UserRepository userRepository;
 
-    public UserDto registerUser(UserRegisterRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new ResourceAlreadyExistsException("User already exists with email: " + request.getEmail());
-        }
-
-        User user = User.builder()
-                .fullName(request.getFullName())
-                .email(request.getEmail())
-                .password(request.getPassword())
-                .role(Role.ADMIN)
-                .active(true)
-                .build();
-
-        User savedUser = userRepository.save(user);
-        return mapToDto(savedUser);
-    }
-
     public UserDto updateUser(Long id, UserUpdateRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));

@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -24,6 +25,7 @@ public class CategoryController {
     private final PostService postService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<CategoryDto>> createCategory(@Valid @RequestBody CategoryRequest request) {
         CategoryDto category = categoryService.createCategory(request);
 
@@ -38,6 +40,7 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<CategoryDto>> updateCategory(@PathVariable Long id,
                                                                    @Valid @RequestBody CategoryRequest request) {
         CategoryDto category = categoryService.updateCategory(id, request);
@@ -53,6 +56,7 @@ public class CategoryController {
     }
 
     @GetMapping()
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<List<CategoryDto>>> getAllCategories() {
         List<CategoryDto> categories = categoryService.getAllCategories();
 
@@ -67,6 +71,7 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('AUTHOR')")
     public ResponseEntity<ApiResponse<CategoryDto>> getCategoryById(@PathVariable Long id) {
         CategoryDto categories = categoryService.getCategoryById(id);
 
@@ -81,6 +86,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<CategoryDto>> deleteCategoryById(@PathVariable Long id) {
         categoryService.deleteCategoryById(id);
 
@@ -95,6 +101,7 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}/posts")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('AUTHOR') or hasRole('READER')")
     public ResponseEntity<ApiResponse<Page<PostDto>>> getPostsByCategory(@PathVariable Long id,
                                                                        @PageableDefault(size = 10, page = 0) Pageable pageable) {
         Page<PostDto> posts = postService.getPostsByCategory(id, pageable);
