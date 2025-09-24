@@ -21,39 +21,10 @@ import java.util.List;
 public class PostController {
     private final PostService postService;
 
-    @PostMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('AUTHOR')")
-    public ResponseEntity<ApiResponse<PostDto>> createPost(@Valid @RequestBody PostCreateRequest request) {
-        PostDto post = postService.createPost(request);
-
-        ApiResponse<PostDto> response = new ApiResponse<>(
-                HttpStatus.OK.value(),
-                "Post created successfully",
-                post,
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
-    @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('AUTHOR')")
-    public ResponseEntity<ApiResponse<PostDto>> updatePost(@PathVariable Long id,
-                                                           @Valid @RequestBody PostUpdateRequest request) {
-        PostDto post = postService.updatePost(id, request);
-
-        ApiResponse<PostDto> response = new ApiResponse<>(
-                HttpStatus.OK.value(),
-                "Post updated successfully",
-                post,
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
+    // ============================
+    // public endpoints
+    // ============================
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('AUTHOR') or hasRole('USER')")
     public ResponseEntity<ApiResponse<PostDto>> getPostById(@PathVariable Long id) {
         PostDto post = postService.getPostById(id);
 
@@ -68,7 +39,6 @@ public class PostController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('AUTHOR') ")
     public ResponseEntity<ApiResponse<Page<PostDto>>> getAllPosts(@PageableDefault(size = 10, page = 0) Pageable pageable) {
         Page<PostDto> posts = postService.getAllPosts(pageable);
 
@@ -76,35 +46,6 @@ public class PostController {
                 HttpStatus.OK.value(),
                 "Post retrieved successfully",
                 posts,
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deletePost(@PathVariable Long id) {
-        postService.deletePost(id);
-
-        ApiResponse<Void> response = new ApiResponse<>(
-                HttpStatus.OK.value(),
-                "Post deleted successfully",
-                null,
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<ApiResponse<PostDto>> updatePostStatus(@PathVariable Long id,
-                                                                 @Valid @RequestBody UpdateStatusRequest request) {
-        PostDto post = postService.updatePostStatus(id, request);
-
-        ApiResponse<PostDto> response = new ApiResponse<>(
-                HttpStatus.OK.value(),
-                "Post status updated successfully",
-                post,
                 LocalDateTime.now()
         );
 
@@ -140,36 +81,6 @@ public class PostController {
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("/{id}/toggle-featured")
-    public ResponseEntity<ApiResponse<PostDto>> toggleFeatured(@PathVariable Long id) {
-        PostDto post = postService.toggleFeatured(id);
-        String message = post.isFeatured() ? "Post marked as featured" : "Post unmarked as featured";
-
-        ApiResponse<PostDto> response = new ApiResponse<>(
-                HttpStatus.OK.value(),
-                message,
-                post,
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
-    @PatchMapping("/{id}/post-views")
-    public ResponseEntity<ApiResponse<PostDto>> getPostAndIncrementViews(@PathVariable Long id) {
-        PostDto post = postService.getPostAndIncrementViews(id);
-        String message = "Post views incremented";
-
-        ApiResponse<PostDto> response = new ApiResponse<>(
-                HttpStatus.OK.value(),
-                message,
-                post,
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
     @GetMapping("/recent")
     public ResponseEntity<ApiResponse<List<PostDto>>> getRecentPosts(@RequestParam(defaultValue = "5") int limit) {
         List<PostDto> posts = postService.getRecentPosts(limit);
@@ -198,6 +109,98 @@ public class PostController {
                 LocalDateTime.now()
         );
 
+        return ResponseEntity.ok(response);
+    }
+
+    // ============================
+    // protected endpoints
+    // ============================
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('AUTHOR')")
+    public ResponseEntity<ApiResponse<PostDto>> createPost(@Valid @RequestBody PostCreateRequest request) {
+        PostDto post = postService.createPost(request);
+
+        ApiResponse<PostDto> response = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "Post created successfully",
+                post,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('AUTHOR')")
+    public ResponseEntity<ApiResponse<PostDto>> updatePost(@PathVariable Long id,
+                                                           @Valid @RequestBody PostUpdateRequest request) {
+        PostDto post = postService.updatePost(id, request);
+
+        ApiResponse<PostDto> response = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "Post updated successfully",
+                post,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deletePost(@PathVariable Long id) {
+        postService.deletePost(id);
+
+        ApiResponse<Void> response = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "Post deleted successfully",
+                null,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<ApiResponse<PostDto>> updatePostStatus(@PathVariable Long id,
+                                                                 @Valid @RequestBody UpdateStatusRequest request) {
+        PostDto post = postService.updatePostStatus(id, request);
+
+        ApiResponse<PostDto> response = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "Post status updated successfully",
+                post,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}/toggle-featured")
+    public ResponseEntity<ApiResponse<PostDto>> toggleFeatured(@PathVariable Long id) {
+        PostDto post = postService.toggleFeatured(id);
+        String message = post.isFeatured() ? "Post marked as featured" : "Post unmarked as featured";
+
+        ApiResponse<PostDto> response = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                message,
+                post,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}/post-views")
+    public ResponseEntity<ApiResponse<PostDto>> getPostAndIncrementViews(@PathVariable Long id) {
+        PostDto post = postService.getPostAndIncrementViews(id);
+        String message = "Post views incremented";
+
+        ApiResponse<PostDto> response = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                message,
+                post,
+                LocalDateTime.now()
+        );
         return ResponseEntity.ok(response);
     }
 }

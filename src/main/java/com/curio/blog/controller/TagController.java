@@ -23,6 +23,55 @@ public class TagController {
     private final TagService tagService;
     private final PostService postService;
 
+    // ============================
+    // public endpoints
+    // ============================
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<TagDto>>> getAllTags() {
+        List<TagDto> tags = tagService.getAllTags();
+
+        ApiResponse<List<TagDto>> response = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "Tags retrieved successfully",
+                tags,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<TagDto>> getTagById(@PathVariable Long id) {
+        TagDto tag = tagService.getTagById(id);
+
+        ApiResponse<TagDto> response = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "Tag retrieved successfully",
+                tag,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}/posts")
+    public ResponseEntity<ApiResponse<Page<PostDto>>> getPostsByTag(@PathVariable Long id,
+                                                                    @PageableDefault(size = 10, page = 0) Pageable pageable) {
+        Page<PostDto> posts = postService.getPostsByTag(id, pageable);
+
+        ApiResponse<Page<PostDto>> response = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "Posts by tag retrieved successfully",
+                posts,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    // ============================
+    // admin endpoints
+    // ============================
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<TagDto>> createTag(@Valid @RequestBody TagRequest request) {
@@ -54,36 +103,6 @@ public class TagController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<List<TagDto>>> getAllTags() {
-        List<TagDto> tags = tagService.getAllTags();
-
-        ApiResponse<List<TagDto>> response = new ApiResponse<>(
-                HttpStatus.OK.value(),
-                "Tags retrieved successfully",
-                tags,
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('AUTHOR')")
-    public ResponseEntity<ApiResponse<TagDto>> getTagById(@PathVariable Long id) {
-        TagDto tag = tagService.getTagById(id);
-
-        ApiResponse<TagDto> response = new ApiResponse<>(
-                HttpStatus.OK.value(),
-                "Tag retrieved successfully",
-                tag,
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteTagById(@PathVariable Long id) {
@@ -93,22 +112,6 @@ public class TagController {
                 HttpStatus.OK.value(),
                 "Tag deleted successfully",
                 null,
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/{id}/posts")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('AUTHOR') or hasRole('READER')")
-    public ResponseEntity<ApiResponse<Page<PostDto>>> getPostsByTag(@PathVariable Long id,
-                                                           @PageableDefault(size = 10, page = 0) Pageable pageable) {
-        Page<PostDto> posts = postService.getPostsByTag(id, pageable);
-
-        ApiResponse<Page<PostDto>> response = new ApiResponse<>(
-                HttpStatus.OK.value(),
-                "Posts by tag retrieved successfully",
-                posts,
                 LocalDateTime.now()
         );
 

@@ -22,6 +22,27 @@ public class UserController {
     private final UserService userService;
     private final PostService postService;
 
+    // ============================
+    // public endpoints
+    // ============================
+    @GetMapping("/{id}/posts")
+    public ResponseEntity<ApiResponse<Page<PostDto>>> getPostsByAuthor(@PathVariable Long id,
+                                                                       @PageableDefault(size = 10, page = 0) Pageable pageable) {
+        Page<PostDto> posts = postService.getPostsByAuthor(id, pageable);
+
+        ApiResponse<Page<PostDto>> response = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "Posts retrieved successfully",
+                posts,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    // ============================
+    // protected endpoints
+    // ============================
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<UserDto>> updateUser(@PathVariable Long id,
@@ -62,21 +83,6 @@ public class UserController {
                 HttpStatus.OK.value(),
                 "User retrieved successfully",
                 user,
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/{id}/posts")
-    public ResponseEntity<ApiResponse<Page<PostDto>>> getPostsByAuthor(@PathVariable Long id,
-                                                                       @PageableDefault(size = 10, page = 0) Pageable pageable) {
-        Page<PostDto> posts = postService.getPostsByAuthor(id, pageable);
-
-        ApiResponse<Page<PostDto>> response = new ApiResponse<>(
-                HttpStatus.OK.value(),
-                "Posts retrieved successfully",
-                posts,
                 LocalDateTime.now()
         );
 
