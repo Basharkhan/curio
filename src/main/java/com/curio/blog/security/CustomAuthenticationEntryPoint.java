@@ -2,6 +2,8 @@ package com.curio.blog.security;
 
 import com.curio.blog.dto.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,8 +16,19 @@ import java.time.LocalDateTime;
 
 @Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
+    private final ObjectMapper mapper;
+
+    public CustomAuthenticationEntryPoint() {
+        this.mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    }
+
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+    public void commence(HttpServletRequest request,
+                         HttpServletResponse response,
+                         AuthenticationException authException) throws IOException {
+
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
 
@@ -26,6 +39,6 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
                 LocalDateTime.now()
         );
 
-        new ObjectMapper().writeValue(response.getOutputStream(), apiResponse);
+        mapper.writeValue(response.getOutputStream(), apiResponse);
     }
 }
