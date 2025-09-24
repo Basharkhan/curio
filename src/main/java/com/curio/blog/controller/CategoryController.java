@@ -33,7 +33,7 @@ public class CategoryController {
 
         ApiResponse<List<CategoryDto>> response = new ApiResponse<>(
                 HttpStatus.OK.value(),
-                "Categories updated successfully",
+                "Categories retrieved successfully",
                 categories,
                 LocalDateTime.now()
         );
@@ -42,7 +42,6 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('AUTHOR')")
     public ResponseEntity<ApiResponse<CategoryDto>> getCategoryById(@PathVariable Long id) {
         CategoryDto categories = categoryService.getCategoryById(id);
 
@@ -57,7 +56,6 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}/posts")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('AUTHOR')")
     public ResponseEntity<ApiResponse<Page<PostDto>>> getPostsByCategory(@PathVariable Long id,
                                                                          @PageableDefault(size = 10, page = 0) Pageable pageable) {
         Page<PostDto> posts = postService.getPostsByCategory(id, pageable);
