@@ -87,7 +87,7 @@ public class TagController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<TagDto>> updateTag(@PathVariable Long id,
                                                          @Valid @RequestBody TagRequest request) {

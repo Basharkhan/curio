@@ -13,7 +13,6 @@ import java.util.List;
 @Builder
 @Table(name = "tags")
 public class Tag extends BaseEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
