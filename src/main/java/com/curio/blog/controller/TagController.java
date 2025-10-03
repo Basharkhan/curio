@@ -27,10 +27,12 @@ public class TagController {
     // public endpoints
     // ============================
     @GetMapping
-    public ResponseEntity<ApiResponse<List<TagDto>>> getAllTags() {
-        List<TagDto> tags = tagService.getAllTags();
+    public ResponseEntity<ApiResponse<Page<TagDto>>> getAllTags(
+            @RequestParam(value = "search", required = false) String search,
+            @PageableDefault(size = 10, page = 0) Pageable pageable) {
+        Page<TagDto> tags = tagService.getAllTags(search, pageable);
 
-        ApiResponse<List<TagDto>> response = new ApiResponse<>(
+        ApiResponse<Page<TagDto>> response = new ApiResponse<>(
                 HttpStatus.OK.value(),
                 "Tags retrieved successfully",
                 tags,

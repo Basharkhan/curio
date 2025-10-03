@@ -7,7 +7,10 @@ import com.curio.blog.exception.ResourceNotFoundException;
 import com.curio.blog.model.Tag;
 import com.curio.blog.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,6 +19,7 @@ import java.util.List;
 public class TagService {
     private  final TagRepository tagRepository;
 
+    @Transactional
     public TagDto createTag(TagRequest request) {
         if (tagRepository.findByName(request.getName()).isPresent()) {
             throw new ResourceAlreadyExistsException("Tag already exists: " + request.getName());
@@ -28,6 +32,7 @@ public class TagService {
         return mapToDto(tagRepository.save(tag));
     }
 
+    @Transactional
     public TagDto updateTag(Long id, TagRequest request) {
         Tag tag = tagRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Tag not found with id: " + id));
@@ -36,18 +41,27 @@ public class TagService {
         return mapToDto(tagRepository.save(tag));
     }
 
+    @Transactional
     public void deleteTagById(Long id) {
         Tag tag = tagRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Tag not found with id: " + id));
         tagRepository.delete(tag);
     }
 
-    public List<TagDto> getAllTags() {
-        return tagRepository.findAll().stream()
-                .map(this::mapToDto)
-                .toList();
+    @Transactional(readOnly = true)
+    public Page<TagDto> getAllTags(String search, Pageable pageable) {
+        Page<Tag> tags;
+
+        if (search != null && !search.isEmpty()) {
+            tags = tagRepository.findByNameContainingIgnoreCase(search, pageable);
+        } else {
+            tags = tagRepository.findAll(pageable);
+        }
+
+        return tags.map(this::mapToDto);
     }
 
+    @Transactional(readOnly = true)
     public TagDto getTagById(Long id) {
         return tagRepository.findById(id)
                 .map(this::mapToDto)
