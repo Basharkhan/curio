@@ -9,9 +9,13 @@ import com.curio.blog.model.User;
 import com.curio.blog.repository.UserRepository;
 import com.curio.blog.security.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.expression.spel.ast.OpAnd;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -78,6 +82,22 @@ public class AuthService {
         return AuthResponse.builder()
                 .token(token)
                 .userDetailsDto(userDetailsDto)
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public UserDetailsDto getCurrentUser(Authentication authentication) {
+        String email = authentication.getName();
+        Optional<User> user = userRepository.findByEmail(email);
+
+        if (user.isEmpty()) {
+            throw new ResourceNotFoundException("User not found with email: " + email);
+        }
+
+        return UserDetailsDto.builder()
+                .email(user.get().getEmail())
+                .fullName(user.get().getFullName())
+                .role(user.get().getRole())
                 .build();
     }
 }

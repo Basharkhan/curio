@@ -1,9 +1,6 @@
 package com.curio.blog.controller;
 
-import com.curio.blog.dto.ApiResponse;
-import com.curio.blog.dto.AuthResponse;
-import com.curio.blog.dto.LoginRequest;
-import com.curio.blog.dto.UserRegisterRequest;
+import com.curio.blog.dto.*;
 import com.curio.blog.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +8,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -65,6 +63,20 @@ public class AuthController {
                 HttpStatus.OK.value(),
                 "Login successful",
                 authResponse,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<UserDetailsDto>> getCurrentUser(Authentication authentication) {
+        UserDetailsDto userDetailsDto = authService.getCurrentUser(authentication);
+
+        ApiResponse<UserDetailsDto> apiResponse = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                "Retrieved current user successfully",
+                userDetailsDto,
                 LocalDateTime.now()
         );
 
