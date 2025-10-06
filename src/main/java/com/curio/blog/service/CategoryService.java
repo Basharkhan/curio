@@ -7,7 +7,10 @@ import com.curio.blog.exception.ResourceNotFoundException;
 import com.curio.blog.model.Category;
 import com.curio.blog.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,6 +19,7 @@ import java.util.List;
 public class CategoryService {
     private final CategoryRepository categoryRepository;
 
+    @Transactional
     public CategoryDto createCategory(CategoryRequest request) {
         if (categoryRepository.findByName(request.getName()).isPresent()) {
             throw new ResourceAlreadyExistsException("Category already exists with name: " + request.getName());
@@ -28,6 +32,7 @@ public class CategoryService {
         return mapToDto(categoryRepository.save(category));
     }
 
+    @Transactional
     public CategoryDto updateCategory(Long id, CategoryRequest request) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + id));
@@ -35,8 +40,9 @@ public class CategoryService {
         return mapToDto(categoryRepository.save(category));
     }
 
-    public List<CategoryDto> getAllCategories() {
-        return categoryRepository.findAll().stream().map(this::mapToDto).toList();
+    @Transactional(readOnly = true)
+    public Page<CategoryDto> getAllCategories(Pageable pageable) {
+        return categoryRepository.findAll(pageable).map(this::mapToDto);
     }
 
     public CategoryDto getCategoryById(Long id) {

@@ -28,10 +28,10 @@ public class CategoryController {
     // public endpoints
     // ============================
     @GetMapping()
-    public ResponseEntity<ApiResponse<List<CategoryDto>>> getAllCategories() {
-        List<CategoryDto> categories = categoryService.getAllCategories();
+    public ResponseEntity<ApiResponse<Page<CategoryDto>>> getAllCategories(Pageable pageable) {
+        Page<CategoryDto> categories = categoryService.getAllCategories(pageable);
 
-        ApiResponse<List<CategoryDto>> response = new ApiResponse<>(
+        ApiResponse<Page<CategoryDto>> response = new ApiResponse<>(
                 HttpStatus.OK.value(),
                 "Categories retrieved successfully",
                 categories,
@@ -88,7 +88,7 @@ public class CategoryController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<CategoryDto>> updateCategory(@PathVariable Long id,
                                                                    @Valid @RequestBody CategoryRequest request) {
