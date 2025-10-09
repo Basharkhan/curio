@@ -28,8 +28,10 @@ public class CategoryController {
     // public endpoints
     // ============================
     @GetMapping()
-    public ResponseEntity<ApiResponse<Page<CategoryDto>>> getAllCategories(Pageable pageable) {
-        Page<CategoryDto> categories = categoryService.getAllCategories(pageable);
+    public ResponseEntity<ApiResponse<Page<CategoryDto>>> getAllCategories(
+            @RequestParam(value = "search", required = false) String search,
+            Pageable pageable) {
+        Page<CategoryDto> categories = categoryService.getAllCategories(search, pageable);
 
         ApiResponse<Page<CategoryDto>> response = new ApiResponse<>(
                 HttpStatus.OK.value(),

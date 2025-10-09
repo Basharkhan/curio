@@ -41,8 +41,16 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public Page<CategoryDto> getAllCategories(Pageable pageable) {
-        return categoryRepository.findAll(pageable).map(this::mapToDto);
+    public Page<CategoryDto> getAllCategories(String search, Pageable pageable) {
+        Page<Category> categories;
+
+        if (search != null && !search.isEmpty()) {
+            categories = categoryRepository.findByNameContainingIgnoreCase(search, pageable);
+        } else {
+            categories = categoryRepository.findAll(pageable);
+        }
+
+        return categories.map(this::mapToDto);
     }
 
     public CategoryDto getCategoryById(Long id) {
