@@ -10,6 +10,7 @@ import com.curio.blog.repository.CategoryRepository;
 import com.curio.blog.repository.PostRepository;
 import com.curio.blog.repository.TagRepository;
 import com.curio.blog.repository.UserRepository;
+import com.curio.blog.utils.AuthUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,11 +29,11 @@ public class PostService {
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
     private final CategoryRepository categoryRepository;
+    private final AuthUtils authUtils;
 
     @Transactional
     public PostDto createPost(PostCreateRequest request) {
-        User author = userRepository.findById(request.getAuthorId())
-                .orElseThrow(() -> new ResourceNotFoundException("Author not found with id: " + request.getAuthorId()));
+        User author = authUtils.getAuthenticatedUser();
 
         Category category = null;
         if (request.getCategoryId() != null) {
@@ -63,6 +64,7 @@ public class PostService {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + id));
 
+        // find all the tags
         List<Tag> tags = new ArrayList<>();
         if (request.getTagIds() != null && !request.getTagIds().isEmpty()) {
             tags = tagRepository.findAllById(request.getTagIds());
@@ -71,6 +73,7 @@ public class PostService {
         post.setTitle(request.getTitle());
         post.setContent(request.getContent());
 
+        // find the category
         if (request.getCategoryId() != null) {
             Category category = categoryRepository.findById(request.getCategoryId())
                     .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + request.getCategoryId()));
@@ -221,6 +224,7 @@ public class PostService {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .authorName(post.getAuthor().getFullName())
+                .categoryId(post.getCategory() != null ? post.getCategory().getId() : null)
                 .categoryName(post.getCategory() != null ? post.getCategory().getName() : null)
                 .tags(post.getTags() != null ? post.getTags().stream().map(Tag::getName).toList() : List.of())
                 .status(post.getStatus())

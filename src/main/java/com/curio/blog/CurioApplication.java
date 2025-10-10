@@ -7,5 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class CurioApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(CurioApplication.class, args);
+        System.out.println("App is running...");
 	}
 }

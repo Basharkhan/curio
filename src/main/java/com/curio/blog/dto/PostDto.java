@@ -14,6 +14,7 @@ public class PostDto {
     private String title;
     private String content;
     private String authorName;
+    private Long categoryId;
     private String categoryName;
     private List<String> tags;
     private PostStatus status;
