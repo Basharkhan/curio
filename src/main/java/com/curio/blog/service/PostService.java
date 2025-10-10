@@ -33,6 +33,7 @@ public class PostService {
     public PostDto createPost(PostCreateRequest request) {
         User author = userRepository.findById(request.getAuthorId())
                 .orElseThrow(() -> new ResourceNotFoundException("Author not found with id: " + request.getAuthorId()));
+
         Category category = null;
         if (request.getCategoryId() != null) {
             category = categoryRepository.findById(request.getCategoryId())
